@@ -1,379 +1,467 @@
 <div align="center">
 
-# 🎫 Support Case Management Workflow
+# 🤖 AI Feedback Agent - n8n Workflow
 
-### Automated n8n workflow for managing customer support cases
+### Intelligent conversational feedback collection powered by AI
 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" width="50" height="50" alt="Node.js" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="50" height="50" alt="JavaScript" />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg" width="50" height="50" alt="Azure" />
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg" width="50" height="50" alt="Google" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/json/json-original.svg" width="50" height="50" alt="JSON" />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="50" height="50" alt="JavaScript" />
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![n8n](https://img.shields.io/badge/n8n-automation-orange)](https://n8n.io)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-blue)](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-[Features](#-features) • [Installation](#-installation) • [API Usage](#-api-usage) • [Documentation](#-setup-guide)
+[Features](#-features) • [How It Works](#-how-it-works) • [Installation](#-installation) • [API Usage](#-api-usage)
 
 ---
 
 </div>
 
-An automated n8n workflow for managing customer support cases with Google Sheets integration, file uploads to Google Drive, and email confirmations.
+**Transform feedback collection from tedious surveys into intelligent conversations.** This AI-powered workflow engages users in natural dialogue, asks thoughtful follow-up questions, and automatically extracts structured, actionable insights - all while adapting to the user's language and context.
 
-## 📋 Overview
+## 💡 The Problem
 
-This workflow automates the entire support case lifecycle:
-- Receives support requests via webhook
-- Generates unique case IDs
-- Creates organized folder structure in Google Drive
-- Stores case data in Google Sheets
-- Sends automated confirmation emails
-- Handles file attachments
+Traditional feedback collection suffers from:
+- 📋 **Survey fatigue** - Users abandon long forms
+- 🤷 **Shallow responses** - One-word answers don't explain "why"
+- 📊 **Unstructured data** - Hours spent categorizing free-text
+- 🌍 **Language barriers** - Manual translation needed
+- ⏰ **Time-consuming analysis** - Hard to prioritize what matters
 
-## 🏗️ Architecture
+## ✨ The Solution
+
+An AI agent that automates the entire feedback lifecycle:
 
 ```
-Webhook → Format Data → Create Folder → Upload Files → Log to Sheets → Send Email → Response
+User feedback → AI conversation → Structured insights → Google Sheets → Actionable prioritization
 ```
 
-### Workflow Nodes
+### Key Benefits
 
-1. **Webhook Trigger** - Receives POST requests with case data
-2. **Format Case Data** - Structures and validates incoming data
-3. **Create Case Folder** - Creates Google Drive folder for attachments
-4. **Loop Over Files** - Processes multiple file uploads
-5. **Upload to Drive** - Stores files in the case folder
-6. **Add to Google Sheets** - Logs case information
-7. **Send Confirmation** - Emails customer with case details
-8. **Response** - Returns success confirmation to caller
+- 💬 **Natural conversations** - Users feel heard, not surveyed
+- 🎯 **Intelligent follow-ups** - AI asks clarifying questions to understand impact
+- 🌍 **Auto language detection** - Responds in Swedish, English, etc.
+- 📊 **Structured output** - Type, category, priority, impact automatically extracted
+- ⚡ **Save time** - Focus on solutions, not data processing
 
 ## 🚀 Features
 
-- ✅ **Automatic Case ID Generation** - Format: `CASE-YYYY-MMDDHHMMSS`
-- 📁 **File Management** - Organized folder structure per case
-- 📊 **Centralized Tracking** - All cases logged in Google Sheets
-- 📧 **Customer Notifications** - Automated confirmation emails
-- 🌍 **Multi-market Support** - Configurable market selection
-- 🔄 **Real-time Processing** - Instant case creation and response
+<table>
+<tr>
+<td width="50%">
 
-## 📦 Prerequisites
+### 🤖 AI-Powered Conversation
+- GPT-4 powered intelligent dialogue
+- Understands context and intent
+- Asks up to 2 relevant follow-up questions
+- Knows when to stop and summarize
 
-### Required n8n Integrations
+</td>
+<td width="50%">
 
-- **Google Drive OAuth2** - For file storage
-- **Google Sheets OAuth2** - For case tracking
-- **SMTP** - For email notifications
+### 🌍 Multilingual Support
+- Auto-detects Swedish, English, etc.
+- Responds in user's language
+- Mirrors tone and formality
+- Natural, human-like responses
 
-### Google Sheets Setup
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-Create a spreadsheet with the following columns:
+### 📊 Structured Insights
+- Automatic categorization (bug/feature/praise)
+- Priority scoring (high/medium/low)
+- Impact analysis
+- Context extraction
+- Actionable recommendations
 
-| Column | Description |
-|--------|-------------|
-| Case ID | Unique identifier |
-| Date | Timestamp |
-| Support Type | Type of support request |
-| Market | Geographic market |
-| Name | Customer name |
-| Email | Customer email |
-| Phone | Customer phone |
-| Company | Company name |
-| Serial Number | Product serial |
-| Article Number | Product article number |
-| Product Model | Product model |
-| Description | Issue description |
-| Files Folder | Google Drive link |
-| Status | Case status |
+</td>
+<td width="50%">
 
-## 🔧 Installation
+### 🔄 Seamless Integration
+- RESTful webhook API
+- Conversation memory (10 messages)
+- Google Sheets logging
+- CORS enabled for web apps
+- Real-time responses
+
+</td>
+</tr>
+</table>
+
+## 🎯 How It Works
+
+```mermaid
+graph LR
+    A[👤 User] -->|Sends message| B[🌐 Webhook]
+    B --> C[🧠 Language Detection]
+    C --> D[🤖 AI Agent]
+    D -->|Memory| E[💾 Window Buffer]
+    D -->|LLM| F[🧬 GPT-4]
+    D --> G[📝 Format Response]
+    G -->|Chat| H[💬 Return to User]
+    G -->|Summary| I[✅ Check if Complete]
+    I -->|Yes| J[📊 Save to Sheets]
+    J --> H
+```
+
+### Conversation Flow Example
+
+**User (Swedish):** *"Kundvagnen töms ibland när jag går tillbaka till startsidan."*  
+*(Translation: "The cart empties sometimes when I go back to the homepage.")*
+
+**AI Agent:** *"Oj, det låter frustrerande. Hur ofta händer det ungefär?"*  
+*(Translation: "Oh, that sounds frustrating. How often does it happen approximately?")*
+
+**User:** *"Kanske 2-3 gånger i veckan när jag handlar."*  
+*(Translation: "Maybe 2-3 times a week when I shop.")*
+
+**AI Agent:** *"Tack, det hjälper mycket! Jag har allt jag behöver nu."*  
+*(Translation: "Thanks, that helps a lot! I have everything I need now.")*
+
+**Structured Output Saved:**
+```json
+{
+  "summary": "Kundvagnen töms ibland när användaren går tillbaka till startsidan. Händer 2-3 gånger per vecka.",
+  "type": "bug",
+  "category": "order",
+  "impact": "Fördröjer beställningar; användaren måste lägga till produkter igen.",
+  "frequency": "often",
+  "context": "cart / homepage navigation",
+  "suggested_action": "Fix session handling for cart persistence when navigating to homepage.",
+  "priority": "medium",
+  "metadata": { "language": "sv", "followUpRequired": false }
+}
+```
+
+## 🛠️ Tech Stack
+
+<div align="center">
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **AI Engine** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg" width="30" /> Azure OpenAI (GPT-4) | Natural language understanding & generation |
+| **Automation** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" width="30" /> n8n + LangChain | Workflow orchestration & AI agent framework |
+| **Memory** | 💾 Window Buffer Memory | Maintains conversation context (10 messages) |
+| **Storage** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg" width="30" /> Google Sheets | Structured feedback database |
+| **API** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/json/json-original.svg" width="30" /> RESTful Webhook | HTTP API for client integration |
+
+</div>
+
+## 📥 Installation
 
 <details>
-<summary><b>📥 Step 1: Import Workflow</b></summary>
+<summary><b>📋 Prerequisites</b></summary>
 
-### Via Command Line
+- n8n instance (self-hosted or cloud)
+- Azure OpenAI account with GPT-4 access
+- Google Sheets API credentials
+- Basic knowledge of webhooks
 
-```bash
-# Copy the workflow JSON file to your n8n workflows directory
-cp workflows/support-case-workflow.json /path/to/n8n/workflows/
-```
+</details>
+
+<details>
+<summary><b>Step 1: Import Workflow</b></summary>
 
 ### Via n8n UI
-1. Go to **Workflows** → **Import**
-2. Select `support-case-workflow.json`
-3. Click **Import**
+1. Copy the workflow JSON from `workflows/feedback-agent-workflow.json`
+2. In n8n, go to **Workflows** → **Import from File** or **Import from URL**
+3. Paste the JSON content
+4. Click **Import**
 
 </details>
 
 <details>
-<summary><b>🔐 Step 2: Configure Credentials</b></summary>
+<summary><b>Step 2: Configure Credentials</b></summary>
 
-### <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg" width="20" height="20" /> Google Drive OAuth2
-1. Navigate to **Credentials** → **New**
-2. Select **Google Drive OAuth2 API**
-3. Follow the OAuth setup process
-4. Save as "Google Drive Account"
+### Azure OpenAI
+1. Go to **Credentials** → **New**
+2. Select **Azure OpenAI**
+3. Enter:
+   - API Key
+   - Resource Name
+   - Deployment ID (e.g., `gpt-4`)
+4. Save as "Azure OpenAI Account"
 
-### <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg" width="20" height="20" /> Google Sheets OAuth2
-1. Navigate to **Credentials** → **New**
+### Google Sheets OAuth2
+1. Go to **Credentials** → **New**
 2. Select **Google Sheets OAuth2 API**
-3. Follow the OAuth setup process
+3. Complete OAuth flow
 4. Save as "Google Sheets Account"
 
-### 📧 SMTP Email
-1. Navigate to **Credentials** → **New**
-2. Select **SMTP**
-3. Configure your email server settings
-4. Save as "SMTP Account"
+</details>
+
+<details>
+<summary><b>Step 3: Set Up Google Sheet</b></summary>
+
+Create a Google Sheet with these columns:
+
+| Timestamp | SessionID | Type | Category | Summary | Impact | Priority | Context | Suggested_Action | Frequency | Language |
+|-----------|-----------|------|----------|---------|--------|----------|---------|-----------------|-----------|----------|
+
+Update the **Google Sheets** node in the workflow with your Sheet ID.
 
 </details>
 
 <details>
-<summary><b>⚙️ Step 3: Update Configuration</b></summary>
+<summary><b>Step 4: Activate & Test</b></summary>
 
-Update the following in the workflow:
+1. Click **Active** to enable the workflow
+2. Copy the webhook URL (shown in the Webhook node)
+3. Test with a POST request:
 
-```javascript
-// Google Sheets Node - documentId
-"documentId": "YOUR_GOOGLE_SHEET_ID"
-
-// Email Node - fromEmail
-"fromEmail": "your-support@example.com"
+```bash
+curl -X POST YOUR_WEBHOOK_URL \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "The search is really slow",
+    "language": "en"
+  }'
 ```
 
 </details>
 
-<details>
-<summary><b>✅ Step 4: Activate Workflow</b></summary>
-
-1. Open the imported workflow
-2. Click **Active** toggle in the top right
-3. Note the webhook URL for API calls
-
-</details>
-
-## 📡 API Usage
+## 🔌 API Usage
 
 ### Endpoint
 
 ```
-POST https://your-n8n-instance.com/webhook/support-case
+POST https://your-n8n-instance.com/webhook/feedback-agent/v1
 ```
 
 ### Request Body
 
 ```json
 {
-  "supportType": "Technical Support",
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "phone": "+46701234567",
-  "company": "Acme Corp",
-  "serialNumber": "SN123456789",
-  "articleNumber": "ART-001",
-  "productModel": "Model X",
-  "description": "Device won't start after firmware update",
-  "market": "SE",
-  "files": [
-    {
-      "filename": "error-log.txt",
-      "data": "base64EncodedFileContent"
-    }
-  ]
+  "message": "User feedback message here",
+  "sessionId": "optional-session-id",
+  "conversationHistory": [
+    { "role": "user", "content": "Previous message" },
+    { "role": "assistant", "content": "Previous response" }
+  ],
+  "language": "auto"
 }
 ```
+
+### Parameters
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `message` | string | ✅ Yes | User's feedback message |
+| `sessionId` | string | ❌ No | Session identifier (auto-generated if omitted) |
+| `conversationHistory` | array | ❌ No | Previous conversation context (max 10 messages) |
+| `language` | string | ❌ No | `auto`, `sv`, `en`, etc. (default: `auto`) |
 
 ### Response
 
+#### Chat Response (ongoing conversation)
 ```json
 {
-  "success": true,
-  "caseId": "CASE-2025-11231430",
-  "message": "Your support case has been created successfully"
+  "mode": "chat",
+  "displayMessage": "Can you tell me more about when this happens?",
+  "conversationHistory": [...]
 }
 ```
 
-## 📊 Data Flow
-
-```mermaid
-graph LR
-    A[Customer Form] --> B[Webhook]
-    B --> C[Format Data]
-    C --> D[Generate Case ID]
-    D --> E[Create Drive Folder]
-    E --> F[Upload Files]
-    F --> G[Log to Sheets]
-    G --> H[Send Email]
-    H --> I[Return Response]
+#### Summary Response (conversation complete)
+```json
+{
+  "mode": "summary",
+  "displayMessage": "✅ Thank you for your feedback!\n\nWe have received...",
+  "fullSummary": {
+    "summary": "User reports slow search performance...",
+    "type": "bug",
+    "category": "performance",
+    "impact": "Users wait 5-10 seconds for results",
+    "frequency": "always",
+    "context": "search / product listing",
+    "suggested_action": "Optimize search indexing and caching",
+    "priority": "high",
+    "metadata": { "language": "en", "followUpRequired": false }
+  }
+}
 ```
 
-## 🔐 Security Considerations
+## 📊 Feedback Categories
 
-- ✅ Use OAuth2 for Google services
-- ✅ Validate webhook payload structure
-- ✅ Sanitize user input in emails
-- ✅ Use HTTPS for webhook endpoints
-- ✅ Implement rate limiting (n8n node settings)
-- ✅ Store credentials securely in n8n
+The AI automatically categorizes feedback into:
 
-## 🛠️ Customization
+### Types
+- 🐛 **bug** - Something is broken or not working
+- ✨ **feature** - New capability or improvement request
+- 👍 **praise** - Positive feedback
+- ❓ **other** - Uncategorized
 
-### Modify Case ID Format
+### Categories
+- 🛒 **order** - Shopping cart, checkout, order management
+- 🔍 **search** - Search functionality, filters
+- ⚡ **performance** - Speed, loading times
+- 📦 **product_data** - Product information, images, specs
+- 🎨 **ux** - User experience, design, navigation
+- 🔧 **other** - Other areas
 
-Edit the **Format Case Data** node:
+### Priority Levels
+- 🔴 **high** - Blocks work/orders or affects many users
+- 🟡 **medium** - Noticeable friction, but work continues
+- 🟢 **low** - Suggestion, nice-to-have, or positive remark
 
+## 🎨 Customization
+
+### Modify AI Behavior
+
+Edit the **AI Agent** node's system message to:
+- Change conversation style (more formal/casual)
+- Adjust number of follow-up questions
+- Add domain-specific context
+- Customize categories and priorities
+
+### Change Languages
+
+The agent supports any language. To add more:
 ```javascript
-// Current format: CASE-YYYY-MMDDHHMMSS
-"value": "=CASE-{{ $now.year }}-{{ $now.format('MMDDHHmmss') }}"
-
-// Alternative format example: SUP-YYYYMMDD-XXXX
-"value": "=SUP-{{ $now.format('YYYYMMDD') }}-{{ Math.floor(Math.random() * 10000) }}"
+// In "Parse & Detect Language" node
+const swedishWords = ['är', 'och', 'för', ...];
+const germanWords = ['ist', 'und', 'für', ...];
+// Add detection logic
 ```
 
-### Add Email Templates
+### Integrate with Other Tools
 
-Edit the **Send Confirmation Email** node to customize HTML:
+Replace **Google Sheets** with:
+- Slack notifications
+- Jira ticket creation
+- Email reports
+- Custom databases
 
-```html
-<h2>Thank you for contacting us!</h2>
-<p>Your support case has been created successfully.</p>
-<p><strong>Case ID:</strong> {{ caseId }}</p>
-<!-- Add your custom branding here -->
-```
+## 📈 Analytics & Insights
 
-### Add More Fields
+Once feedback is collected in Google Sheets, you can:
 
-1. Update webhook to accept new fields
-2. Add fields in **Format Case Data** node
-3. Update Google Sheets columns
-4. Modify email template if needed
+1. **Pivot Tables** - Group by type, category, priority
+2. **Charts** - Visualize trends over time
+3. **Dashboards** - Use Google Data Studio / Looker
+4. **Export** - CSV for deeper analysis in Excel/Python
 
-## 📈 Monitoring & Troubleshooting
+### Example Queries
 
-### ✅ Check Workflow Executions
+- "What are the top 3 high-priority bugs this month?"
+- "How many users mentioned 'slow search'?"
+- "What's the ratio of bugs vs. features requested?"
 
-1. Go to **Executions** in n8n
-2. Filter by workflow name
-3. Review success/failure rates
+## 🔐 Security & Privacy
 
-### ⚠️ Common Issues
-
-<details>
-<summary><b>Files not uploading to Google Drive</b></summary>
-
-**Solution:**
-- Check Google Drive credentials and folder permissions
-- Verify OAuth2 token is valid
-- Ensure binary data is properly formatted
-
-</details>
-
-<details>
-<summary><b>Google Sheets not updating</b></summary>
-
-**Solution:**
-- Verify Sheet ID and column names match exactly
-- Check OAuth2 credentials
-- Ensure proper write permissions
-
-</details>
-
-<details>
-<summary><b>Emails not sending</b></summary>
-
-**Solution:**
-- Confirm SMTP settings and credentials
-- Check spam folders
-- Verify email server allows connections
-
-</details>
-
-<details>
-<summary><b>Webhook timeout</b></summary>
-
-**Solution:**
-- Enable "Response" node before long operations
-- Increase timeout in n8n settings
-- Consider async processing
-
-</details>
+- ✅ No personally identifiable information (PII) is stored
+- ✅ CORS enabled for web integration
+- ✅ Session IDs are anonymized
+- ✅ Azure OpenAI data processing compliant with GDPR
+- ⚠️ Consider adding rate limiting for production use
+- ⚠️ Review and redact sensitive information before analysis
 
 ## 🧪 Testing
 
-<div align="center">
-
-[![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)](examples/)
-[![cURL](https://img.shields.io/badge/cURL-073551?style=for-the-badge&logo=curl&logoColor=white)](examples/curl-examples.sh)
-
-</div>
-
-### 🔧 Test with cURL
+### Test with cURL
 
 ```bash
-curl -X POST https://your-n8n-instance.com/webhook/support-case \
+# First message
+curl -X POST YOUR_WEBHOOK_URL \
   -H "Content-Type: application/json" \
   -d '{
-    "supportType": "Technical Support",
-    "name": "Test User",
-    "email": "test@example.com",
-    "phone": "+46701234567",
-    "description": "Test case creation",
-    "market": "SE"
+    "message": "The checkout process is confusing",
+    "language": "en"
+  }'
+
+# Follow-up message
+curl -X POST YOUR_WEBHOOK_URL \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "session_123",
+    "message": "I keep getting error messages when I try to pay",
+    "conversationHistory": [
+      {"role": "user", "content": "The checkout process is confusing"},
+      {"role": "assistant", "content": "Can you describe what happens?"}
+    ]
   }'
 ```
 
-### 📮 Test with Postman
+### Integration Example (JavaScript)
 
-1. Import the included `postman_collection.json`
-2. Update the webhook URL
-3. Run the "Create Support Case" request
+```javascript
+async function submitFeedback(message, sessionId = null, history = []) {
+  const response = await fetch('YOUR_WEBHOOK_URL', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message,
+      sessionId,
+      conversationHistory: history,
+      language: 'auto'
+    })
+  });
+  
+  const data = await response.json();
+  
+  if (data.mode === 'chat') {
+    // Continue conversation
+    console.log('Agent:', data.displayMessage);
+  } else if (data.mode === 'summary') {
+    // Conversation complete
+    console.log('Summary:', data.fullSummary);
+  }
+  
+  return data;
+}
+```
 
-## 🔗 Quick Links
+## 🌟 Use Cases
 
-<div align="center">
+### B2B Portals
+- Collect feedback from business users
+- Understand pain points in ordering workflows
+- Prioritize feature requests
 
-| Resource | Description |
-|----------|-------------|
-| 📖 [Setup Guide](docs/SETUP.md) | Complete installation instructions |
-| 📝 [Changelog](CHANGELOG.md) | Version history and updates |
-| 🧪 [Test Examples](examples/) | API request examples and cURL scripts |
-| 📄 [License](LICENSE) | MIT License |
+### SaaS Products
+- Continuous product feedback loop
+- User sentiment tracking
+- Feature validation
 
-</div>
+### E-commerce
+- Checkout experience insights
+- Product discovery improvements
+- Mobile app feedback
 
-## 📝 Support Types
+### Internal Tools
+- Employee experience feedback
+- IT helpdesk insights
+- Process improvement suggestions
 
-- Technical Support
-- Product Information
-- Warranty Claim
-- Parts Request
-- Service Request
-- General Inquiry
+## 🗺️ Roadmap
 
-## 🌍 Supported Markets
-
-<div align="center">
-
-| Market | Country |
-|--------|----------|
-| 🇸🇪 SE | Sweden |
-| 🇳🇴 NO | Norway |
-| 🇩🇰 DK | Denmark |
-| 🇫🇮 FI | Finland |
-| 🇩🇪 DE | Germany |
-| 🇬🇧 UK | United Kingdom |
-| 🇺🇸 US | United States |
-
-</div>
+- [ ] Multi-language UI components (React/Vue widget)
+- [ ] Sentiment analysis scoring
+- [ ] Automated email digests for product teams
+- [ ] Integration with Jira/Linear/GitHub Issues
+- [ ] Dashboard for real-time feedback monitoring
+- [ ] A/B testing for different AI prompts
+- [ ] Voice input support
+- [ ] Analytics API for external BI tools
 
 ## 🤝 Contributing
 
 <div align="center">
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=flat-square)](https://github.com/yourusername/tur-n8n-feedbackagent/issues)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=flat-square)](https://github.com/emilingemarkarlsson/tur-n8n-feedbackagent/issues)
 
-Feel free to submit issues or pull requests to improve this workflow!
+Contributions are welcome! Feel free to:
+- 🐛 Report bugs
+- 💡 Suggest features
+- 📖 Improve documentation
+- 🔧 Submit pull requests
 
 </div>
 
@@ -383,11 +471,9 @@ MIT License - Feel free to use and modify for your needs.
 
 ## 📞 Support
 
-For questions about this workflow:
-
 <div align="center">
 
-[![GitHub Issues](https://img.shields.io/badge/Issues-Create_Issue-blue?style=for-the-badge)](https://github.com/yourusername/tur-n8n-feedbackagent/issues)
+[![GitHub Issues](https://img.shields.io/badge/Issues-Create_Issue-blue?style=for-the-badge)](https://github.com/emilingemarkarlsson/tur-n8n-feedbackagent/issues)
 [![n8n Community](https://img.shields.io/badge/n8n-Community-orange?style=for-the-badge)](https://community.n8n.io)
 [![Documentation](https://img.shields.io/badge/Docs-n8n-brightgreen?style=for-the-badge&logo=readthedocs&logoColor=white)](https://docs.n8n.io)
 
@@ -400,13 +486,16 @@ For questions about this workflow:
 ### Built with ❤️ using
 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" width="60" height="60" alt="Node.js" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="60" height="60" alt="JavaScript" />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg" width="60" height="60" alt="Azure" />
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg" width="60" height="60" alt="Google" />
 
-**n8n Workflow Automation**
+**n8n + Azure OpenAI + LangChain**
 
 [![Made with n8n](https://img.shields.io/badge/Made_with-n8n-orange?style=for-the-badge)](https://n8n.io)
+[![Powered by Azure](https://img.shields.io/badge/Powered_by-Azure_OpenAI-blue?style=for-the-badge)](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 
 ⭐ Star this repo if you find it helpful!
+
+*Transform feedback into insights, not just data.*
 
 </div>

@@ -1,0 +1,300 @@
+{
+  "name": "B2B Feedback Chat Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "feedback-agent/v1",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "2b4c6612-9f7c-412c-8516-2330a2ca3790",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -416,
+        -48
+      ],
+      "webhookId": "feedback-chat"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and normalize the incoming payload\nconst body = $json.body || {};\nconst sessionId = body.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\nconst userMessage = body.message || '';\nconst conversationHistory = (body.conversationHistory || []).slice(-10);\nconst language = body.language || 'en'; // Default to 'en' instead of using navigator\n\n// Count user messages to determine conversation stage\nconst messageCount = conversationHistory.filter(m => m.role === 'user').length;\nconst isFirstMessage = messageCount === 0;\n\n// Simple language detection if not provided\nfunction detectLanguage(text) {\n  const swedishWords = ['är', 'och', 'för', 'att', 'inte', 'kan', 'har', 'det', 'med', 'från'];\n  const lowerText = text.toLowerCase();\n  const matches = swedishWords.filter(word => lowerText.includes(' ' + word + ' ')).length;\n  return matches > 2 ? 'sv' : 'en';\n}\n\nconst detectedLanguage = language === 'auto' || !language ? detectLanguage(userMessage) : language;\n\n// Extract metadata\nconst metadata = {\n  userAgent: $json.headers?.['user-agent'] || '',\n  referer: $json.headers?.['referer'] || '',\n  timestamp: new Date().toISOString()\n};\n\nreturn [{\n  json: {\n    sessionId,\n    chatInput: userMessage,\n    conversationHistory,\n    language: detectedLanguage,\n    messageCount,\n    isFirstMessage,\n    metadata\n  }\n}];"
+      },
+      "id": "7d6de53a-bb30-43eb-b938-dc6cd279a322",
+      "name": "Parse & Detect Language",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are "Portal Feedback Agent" for your B2B customer portal.\n\n---\n\n## 🎯 Mission\nHave a short, natural, and thoughtful conversation to understand user feedback and turn it into clear, actionable insight for the product team.  \nYour goal is to **understand the "why" behind the feedback** — not just collect surface-level complaints.\n\nAsk only what feels natural and necessary to clarify intent, impact, and context.\n\n---\n\n## 🌍 Language\n- Always respond in the same language as the user (Swedish, English, etc.).  \n- Mirror tone and formality naturally: warm, concise, and professional.  \n- If user mixes languages, follow their lead.\n\n---\n\n## 💬 Style\n- Sound like a helpful human, not a form or survey.  \n- Use 1–2 short sentences per reply.  \n- Show understanding, then ask a clarifying question when needed.  \n- Avoid templates and repetition.  \n- Never over-ask — focus on *quality*, not quantity.\n\n---\n\n## 👋 Opening\nIf this is the first message:\n- SV: "Hej! Vad skulle du vilja förbättra eller förändra i portalen?"\n- EN: "Hi! What would you like to improve or change in the portal?"\n\nKeep the first exchange simple and human.\n\n---\n\n## 🔍 Conversation Flow (adaptive)\nYou are free to ask **up to 2 short follow-up questions** – but only if needed for clarity or actionability.\n\nAsk **only one question at a time**.  \nYou decide dynamically based on what the user has already said.\n\n### Possible angles (prioritized):\n1. **Understanding work impact** (IMPORTANT for bugs/issues) – \"Hur påverkar det ditt dagliga arbete?\" / \"How does this affect your daily work?\"\n2. **Understanding intent** – "Kan du berätta lite mer om vad du försöker göra när det händer?"\n3. **Understanding frequency or scope** – "Hur ofta uppstår det?" / "Är det flera som påverkas?"\n4. **For improvement ideas** – "Vad skulle den förändringen hjälpa dig med?"  \n5. **For praise** – "Vad är det som funkar extra bra enligt dig?"\n\n→ Skip anything that isn't relevant.  \n→ Stop early if you already understand the problem or idea clearly.\n\n---\n\n## ✅ When to stop\nStop the conversation and summarise as soon as you can clearly describe:\n- what the user means (problem, idea, praise),\n- why it matters (impact or benefit),\n- and roughly where or when it happens (context or scope).\n\nIf the user says "klar", "done", "that's all", or seems finished → summarise immediately.\n\n---\n\n## ⚖️ Guardrails\n- Don't ask for or repeat personal data (PII).  \n- Don't promise fixes, timelines, or features.  \n- If user asks for unrelated help (e.g., password reset), acknowledge it briefly and redirect politely.  \n- Stay neutral and professional even if user is frustrated.\n\n---\n\n## 🧾 Final Output\nWhen the conversation ends:\n1. Thank the user briefly in their language.  \n2. Then output **only one valid JSON object** — no text, no code blocks, no explanations.\n\n**Schema:**\n```json\n{\n  \"summary\": \"2–3 sentences summarising the user's feedback and context\",\n  \"type\": \"bug|feature|praise|other\",\n  \"category\": \"order|search|performance|product_data|ux|other\",\n  \"impact\": \"short description of how it affects the user/business (or expected benefit if feature)\",\n  \"frequency\": \"always|often|sometimes|once|unknown\",\n  \"context\": \"portal area or flow (e.g., cart, checkout, search results, login)\",\n  \"suggested_action\": \"concise, actionable recommendation (English OK)\",\n  \"priority\": \"high|medium|low\",\n  \"metadata\": { \"language\": \"sv|en|de|other\", \"followUpRequired\": false }\n}\n```\n\n**Priority guide:**\n- **high** → blocks work/orders or affects many users  \n- **medium** → noticeable friction, but work continues  \n- **low** → suggestion, nice-to-have, or positive remark\n\n---\n\n## 🧩 Example – Bug (SV)\nUser: "Kundvagnen töms ibland när jag går tillbaka till startsidan."  \nAgent: "Oj, det låter frustrerande. Hur ofta händer det ungefär?"  \n*(User answers)*  \nAgent: "Tack, det hjälper mycket! Jag har allt jag behöver nu."\n\nFinal JSON:\n```json\n{\n  \"summary\": \"Kundvagnen töms ibland när användaren går tillbaka till startsidan.\",\n  \"type\": \"bug\",\n  \"category\": \"order\",\n  \"impact\": \"Fördröjer beställningar; användaren måste lägga till produkter igen.\",\n  \"frequency\": \"sometimes\",\n  \"context\": \"cart / homepage navigation\",\n  \"suggested_action\": \"Fix session handling for cart persistence when navigating to homepage.\",\n  \"priority\": \"medium\",\n  \"metadata\": { \"language\": \"sv\", \"followUpRequired\": false }\n}\n```\n\n---\n\n## 🧩 Example – Feature (EN)\nUser: "It would be great if I could get delivery updates in the app."  \nAgent: "That makes sense! What would that help you do more easily?"  \n*(User answers)*  \nAgent: "Perfect, I've noted that."\n\nFinal JSON:\n```json\n{\n  \"summary\": \"User wants mobile or in-portal notifications for delivery status.\",\n  \"type\": \"feature\",\n  \"category\": \"order\",\n  \"impact\": \"Improves visibility; reduces time spent checking order status manually.\",\n  \"frequency\": \"often\",\n  \"context\": \"homepage / notification center\",\n  \"suggested_action\": \"Add delivery notifications and order status alerts via mobile or portal.\",\n  \"priority\": \"medium\",\n  \"metadata\": { \"language\": \"en\", \"followUpRequired\": false }\n}\n```"
+        }
+      },
+      "id": "8e2b1716-34ff-4bf6-81fe-d7c86143d329",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        32,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "options": {
+          "frequencyPenalty": 0.3,
+          "maxTokens": 600,
+          "temperature": 0.5
+        }
+      },
+      "id": "c7699660-6b12-4387-8694-01381b4b1008",
+      "name": "Azure OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        208
+      ],
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "YOUR_AZURE_OPENAI_CREDENTIAL_ID",
+          "name": "Azure OpenAI Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "id": "b4cabf35-08e0-408a-88c9-b65b11f37527",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const reply = $input.item.json.output;\nconst conversationHistory = $('AI Agent').item.json.chatHistory || [];\n\n// Check if response contains JSON\nif (typeof reply === 'string') {\n  const jsonMatch = reply.match(/```json\\s*({[\\s\\S]*?})\\s*```|({\\s*\"summary\"[\\s\\S]*?})/);\n  \n  if (jsonMatch) {\n    try {\n      const jsonStr = jsonMatch[1] || jsonMatch[2];\n      const summary = JSON.parse(jsonStr);\n      const lang = summary.metadata?.language || 'sv';\n      \n      let userMessage = '';\n      \n      if (lang === 'en') {\n        userMessage = '✅ Thank you for your feedback!\\n\\n';\n        userMessage += 'We have received the following from you:\\n';\n        userMessage += '\"' + summary.summary + '\"\\n\\n';\n        userMessage += 'This helps us continue improving the portal. Thank you for taking the time! 🙏';\n      } else {\n        userMessage = '✅ Tack för din återkoppling!\\n\\n';\n        userMessage += 'Vi har tagit emot följande från dig:\\n';\n        userMessage += '\"' + summary.summary + '\"\\n\\n';\n        userMessage += 'Detta hjälper oss att fortsätta förbättra portalen. Tack för att du tog dig tid! 🙏';\n      }\n      \n      return [{\n        json: {\n          mode: 'summary',\n          displayMessage: userMessage,\n          fullSummary: summary\n        }\n      }];\n    } catch (e) {\n      console.log('JSON parsing failed:', e);\n    }\n  }\n}\n\n// Regular chat message\nreturn [{\n  json: {\n    mode: 'chat',\n    displayMessage: String(reply),\n    conversationHistory: conversationHistory\n  }\n}];"
+      },
+      "id": "2b1a531e-b15a-4f8c-99cd-7c1b9570ad96",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-cache, no-store, must-revalidate"
+              }
+            ]
+          }
+        }
+      },
+      "id": "e5891e1f-228f-4643-a4c0-1630f078abf4",
+      "name": "Respond to Chat",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.mode }}",
+              "operation": "equals",
+              "value2": "summary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "eb8db7c0-c006-461a-a3e0-4085566ebf5a",
+      "name": "Only Save Summaries",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        480,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Feedback Agent Data"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.metadata.timestamp }}",
+            "SessionID": "={{ $json.sessionId }}",
+            "Type": "={{ $json.fullSummary.type }}",
+            "Category": "={{ $json.fullSummary.category }}",
+            "Summary": "={{ $json.fullSummary.summary }}",
+            "Impact": "={{ $json.fullSummary.impact }}",
+            "Priority": "={{ $json.fullSummary.priority }}",
+            "Context": "={{ $json.fullSummary.context }}",
+            "Suggested_Action": "={{ $json.fullSummary.suggested_action }}",
+            "Frequency": "={{ $json.fullSummary.frequency }}",
+            "Language": "={{ $json.fullSummary.metadata.language }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "a1011c4e-cf93-4c23-9296-951f0f3ef74b",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        640,
+        144
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse & Detect Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Detect Language": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Only Save Summaries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Save Summaries": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

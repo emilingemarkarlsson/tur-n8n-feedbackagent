@@ -1,0 +1,327 @@
+{
+  "name": "Support Case Workflow - Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "support-case",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Receive Case",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "support-case-webhook"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "caseId",
+              "value": "=CASE-{{ $now.year }}-{{ $now.format('MMDDHHmmss') }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "name": "supportType",
+              "value": "={{ $json.body.supportType }}"
+            },
+            {
+              "name": "customerName",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "name": "customerEmail",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "name": "customerPhone",
+              "value": "={{ $json.body.phone }}"
+            },
+            {
+              "name": "company",
+              "value": "={{ $json.body.company || 'N/A' }}"
+            },
+            {
+              "name": "serialNumber",
+              "value": "={{ $json.body.serialNumber || 'N/A' }}"
+            },
+            {
+              "name": "articleNumber",
+              "value": "={{ $json.body.articleNumber || 'N/A' }}"
+            },
+            {
+              "name": "productModel",
+              "value": "={{ $json.body.productModel || 'N/A' }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $json.body.description }}"
+            },
+            {
+              "name": "market",
+              "value": "={{ $json.body.market || 'SE' }}"
+            },
+            {
+              "name": "status",
+              "value": "Open"
+            },
+            {
+              "name": "files",
+              "value": "={{ $json.body.files }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-case-data",
+      "name": "Format Case Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "create",
+        "folderId": {
+          "__rl": true,
+          "value": "root",
+          "mode": "list",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "name": "=Support Cases/{{ $json.caseId }}",
+        "options": {}
+      },
+      "id": "create-case-folder",
+      "name": "Create Case Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [650, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "your-google-drive-credential-id",
+          "name": "Google Drive Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "loop-files",
+      "name": "Loop Over Files",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "upload",
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create Case Folder').item.json.id }}",
+          "mode": "id"
+        },
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "id": "upload-file",
+      "name": "Upload File to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1050, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "your-google-drive-credential-id",
+          "name": "Google Drive Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "your-google-sheet-id",
+          "mode": "list",
+          "cachedResultName": "Support Cases"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Case ID": "={{ $('Format Case Data').item.json.caseId }}",
+            "Date": "={{ $('Format Case Data').item.json.timestamp }}",
+            "Support Type": "={{ $('Format Case Data').item.json.supportType }}",
+            "Market": "={{ $('Format Case Data').item.json.market }}",
+            "Name": "={{ $('Format Case Data').item.json.customerName }}",
+            "Email": "={{ $('Format Case Data').item.json.customerEmail }}",
+            "Phone": "={{ $('Format Case Data').item.json.customerPhone }}",
+            "Company": "={{ $('Format Case Data').item.json.company }}",
+            "Serial Number": "={{ $('Format Case Data').item.json.serialNumber }}",
+            "Article Number": "={{ $('Format Case Data').item.json.articleNumber }}",
+            "Product Model": "={{ $('Format Case Data').item.json.productModel }}",
+            "Description": "={{ $('Format Case Data').item.json.description }}",
+            "Files Folder": "=https://drive.google.com/drive/folders/{{ $('Create Case Folder').item.json.id }}",
+            "Status": "={{ $('Format Case Data').item.json.status }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "add-to-sheets",
+      "name": "Add to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1250, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "your-google-sheets-credential-id",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "subject": "=Support Case {{ $('Format Case Data').item.json.caseId }} - Confirmation",
+        "emailType": "html",
+        "message": "=<h2>Thank you for contacting us!</h2>\n<p>Your support case has been created successfully.</p>\n<p><strong>Case Number:</strong> {{ $('Format Case Data').item.json.caseId }}</p>\n<p><strong>Type:</strong> {{ $('Format Case Data').item.json.supportType }}</p>\n<p><strong>Status:</strong> Open</p>\n<p>We will get back to you as soon as possible.</p>\n<br>\n<p>Best regards,<br>Support Team</p>",
+        "fromEmail": "support@example.com",
+        "toEmail": "={{ $('Format Case Data').item.json.customerEmail }}",
+        "options": {}
+      },
+      "id": "send-confirmation",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1450, 300],
+      "credentials": {
+        "smtp": {
+          "id": "your-smtp-credential-id",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"caseId\": $('Format Case Data').item.json.caseId, \"message\": \"Your support case has been created successfully\" } }}",
+        "options": {}
+      },
+      "id": "response",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Case": {
+      "main": [
+        [
+          {
+            "node": "Format Case Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Case Data": {
+      "main": [
+        [
+          {
+            "node": "Create Case Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Case Folder": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Files": {
+      "main": [
+        [
+          {
+            "node": "Upload File to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload File to Drive": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Confirmation Email": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-18T10:00:00.000Z",
+  "versionId": "1"
+}

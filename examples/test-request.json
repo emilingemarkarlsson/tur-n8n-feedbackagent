@@ -1,0 +1,18 @@
+{
+  "supportType": "Technical Support",
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "phone": "+46701234567",
+  "company": "Acme Corporation",
+  "serialNumber": "SN123456789",
+  "articleNumber": "ART-001-X",
+  "productModel": "Product Model X",
+  "description": "The device stops after 10 minutes of operation. Error code E15 displayed. Already tried resetting and updating firmware.",
+  "market": "SE",
+  "files": [
+    {
+      "filename": "error-screenshot.png",
+      "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    }
+  ]
+}
